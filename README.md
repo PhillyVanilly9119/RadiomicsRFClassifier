@@ -3,10 +3,18 @@ Radiomics Texture Feature &amp; Quantitative Fluorescence-based Classification o
 
 
 
+## Install PyRadiomics from the library:
+
+pip install pyradiomics
+
+
+
 ## Citation (BibTex):
 
+Please use the following citation to reference usage of scripts or code of this project
+
 @software{RadioTF_QFluo_Tumor_Classifier:2023,
-  author = {Gesperger, Johanna, Matten, Philipp, Merkle, Conrad},
+  author = {Gesperger, Johanna and Matten, Philipp and Merkle, Conrad},
   doi = {TBD},
   month = {},
   title = {{TBD}},
