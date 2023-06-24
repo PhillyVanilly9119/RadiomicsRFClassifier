@@ -22,115 +22,15 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import classification_report, confusion_matrix 
 
+from metadataparser import MetaDataParser
+
 cwd, _ = os.path.split(__file__)
 
+MetaDataParser = MetaDataParser(cwd)
 #####################################
 ####### (i) SETUP EXPERIMENTS #######
 #####################################
-_data_file_list = ["1_Tumor_diagnosis_data.txt",
-                   "2_Tissue_type_diagnosis_data.txt",
-                   "3_Glioma_diagnosis_tissue_type_data.txt",
-                   "4_Glioma_IDH_data.txt"] # list of *.CSV files containing the TF-data
 
-_key_list = ['Diagnosis',
-             'TissueType',
-             'IDHStatus'] # list of prediction tasks 
-
-_feature_group_list = ["feature_group_1.json",
-                       "feature_group_2.json",
-                       "feature_group_3.json",
-                       "feature_group_4.json"] # list of files containing the features
- 
-####################################
-###### CREATE EXPERIMENT LIST ######
-####################################
-# Dict containing all combinations for all 13 experiments -> see "howto.txt"
-# _trainings[n][0] -> path to data file (CSV)
-# _trainings[n][1] -> classification key
-# _trainings[n][2] -> path to feature list file (JSON)
-# _trainings[n][3] -> file name to save model, trained on all number of TF-values
-# _trainings[n][4] -> file name to save model, trained on essential number of TF-values
-
-_trainings = [
-     # "Tumor Diagnosis 1" 
-     [os.path.join(cwd, "CSV_Files", _data_file_list[0]), 
-     _key_list[0],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[2]),
-     "RFC_Model_allFeatures_TumorDiagnosis_PyRad_HRALA.joblib",
-     "RFC_Model_relevantFeatures_TumorDiagnosis_PyRad_HRALA.joblib"],
-     # "Tissue Type 1"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[1]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[0]),
-     "RFC_Model_allFeatures_TissueType_PyRad.joblib",
-     "RFC_Model_relevantFeatures_TissueType_PyRad.joblib"],
-     # "Tissue Type 2"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[1]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[1]),
-     "RFC_Model_allFeatures_TissueTypePyRad_IntraOPALA.joblib",
-     "RFC_Model_relevantFeatures_TissueTypePyRad_IntraOPALA.joblib"],
-     # "Tissue Type 3"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[1]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[2]),
-     "RFC_Model_allFeatures_TissueType_PyRad_HRALA.joblib",
-     "RFC_Model_relevantFeatures_TissueType_PyRad_HRALA.joblib"],
-     # "Glioma 1"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[0]),
-     "RFC_Model_allFeatures_Glioma_TissueType_PyRad.joblib",
-     "RFC_Model_relevantFeatures_Glioma_TissueType_PyRad.joblib"],
-     # "Glioma 2"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[3]),
-     "RFC_Model_allFeatures_Glioma_TissueType_HRALA.joblib",
-     "RFC_Model_relevantFeatures_Glioma_TissueType_HRALA.joblib"],
-     # "Glioma 3"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[1],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[2]),
-     "RFC_Model_allFeatures_Glioma_TissueType_PyRAD_HRALA.joblib",
-     "RFC_Model_relevantFeatures_Glioma_TissueType_PyRAD_HRALA.joblib"],
-     # "Glioma 4"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[0],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[0]),
-     "RFC_Model_allFeatures_Diagnosis_PyRad.joblib",
-     "RFC_Model_relevantFeatures_Diagnosis_PyRad.joblib"],
-     # "Glioma 5"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[0],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[3]),
-     "RFC_Model_allFeatures_Diagnosis_HRALA5.joblib",
-     "RFC_Model_relevantFeatures_Diagnosis_HRALA.joblib"],
-     # "Glioma 6"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[2]), 
-     _key_list[0],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[2]),
-     "RFC_Model_allFeatures_Diagnosis_PyRad_HRALA.joblib",
-     "RFC_Model_relevantFeatures_Diagnosis_PyRad_HRALA.joblib"],
-     # "IDH Status Prediciton 1"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[3]), 
-     _key_list[2],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[0]),
-     "RFC_Model_allFeatures_IDHStatus_PyRad.joblib",
-     "RFC_Model_relevantFeatures_IDHStatus_PyRad.joblib"],
-     # "IDH Status Prediciton 2"
-     [os.path.join(cwd, "CSV_Files", _data_file_list[3]), 
-     _key_list[2],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[3]),
-     "RFC_Model_allFeatures_IDHStatus_HRALA.joblib",
-     "RFC_Model_relevantFeatures_IDHStatus_HRALA.joblib"],
-     # "IDH Status Prediciton 3": 
-     [os.path.join(cwd, "CSV_Files", _data_file_list[3]), 
-     _key_list[2],
-     os.path.join(cwd, "Feature_Names", _feature_group_list[2]),
-     "RFC_Model_allFeatures_IDHStatus_PyRad_HRALA.joblib",
-     "RFC_Model_relevantFeatures_IDHStatus_PyRad_HRALA.joblib"]
-]
 
 ######################################################################################################
 ############## Function to create a clean split between test and training data frames ################
